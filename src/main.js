@@ -10,27 +10,43 @@ function intToIP(int) {
 (function main() {
   var http = require('http');
   var fs = require('fs');
-  var network = require('network.js');
-  var file = './[720pMkv.Com]_The.Sopranos.S06E21.Members.Only.480p.BluRay.x264-GAnGSteR.webm';
+  var network = require('./network.js');
+  var url = require('url')
+  //localIP
+  var ip = network();
+  var file = '../media/tvshows/[720pMkv.Com]_The.Sopranos.S06E21.Members.Only.480p.BluRay.x264-GAnGSteR.webm';
   //var file = './video.webm'
   var server = http.createServer(function (req, response) {
-	//This media server has two operations:
-	
-	//list
-    
-	//play
-	
-	var ip = network.discoverLocalIP();
+    //lets filter our http request and find its parameters 
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+    //url arguments
+    var op = query.op;
+    var media = query.media;
+    var name = query.name;
+    //This media server has two operations:
+    //list
+    if(op === 'list'){
+      
+    }
+    //play
+	  if(op === 'play'){
+      
+    } 
      
     if (req.url != '/video.mp4') {
       console.log(ip);
       response.writeHead(200, { "Content-Type": "text/html" });
-      response.end('<video width="320" height="240" autoplay controls><source src="http://'+ ip +':8030/video.mp4" type="video/mp4"></video>');
+      response.end('<video width="320" height="240" autoplay controls><source src="http://'+ 'localhost'/*ip*/ +':8030/video.mp4" ></video>');
       return;
     }
 
     console.log('INFO: ', 'client requested video');
     fs.stat(file, function (err, stats) {
+      if(err){
+        console.log("ERROR: ", 'cannot read stream.')
+        return;
+      }
       var total = stats.size;
       var range = req.headers.range;
       var start = 0, end = total -1;
@@ -52,6 +68,7 @@ function intToIP(int) {
         .on("open", function () {
           stream.pipe(response);
         }).on("error", function (err) {
+          console.log("ERROR: ", 'cannot read stream.');
           response.end(err);
         });
     });
