@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body onload='listMediaTypes()'>
+  <h1>MEDIA SERVER</h1>
+  <form action='action_page.php'>
+    <div>
+      Type of media you want to play:
+      <select name='media' id='media' onchange='listFilesByMedia()' >
+        <option value=''></option>
+        <option value='music'>music</option>
+        <option value='video'>video</option>
+      </select>
+    </div>
+    <br>
+    <div id='file_div'  style='display: none;'>
+      Select the file you want to play:
+      <select name='file' id='file'>
+      </select>
+    </div>
+    <br>
+    <br>
+    <input type='submit'>
+  </form>
+  <script>
+    function listMediaTypes(){
+      var xmlhttp= new XMLHttpRequest();
+      xmlhttp.open('GET','/?op=list',true);
+      xmlhttp.send();
+      console.log('INFO: ', 'media types are ' + xmlhttp.responseText);
+    }
+    function listFilesByMedia(value){
+      var e = document.getElementById('media');
+      var media = e.options[e.selectedIndex].value;
+      console.log(media);
+      if(media && media.length > 0){
+        var fileDiv = document.getElementById('file_div');
+        fileDiv.style.display = 'initial';
+        
+        var xmlhttp= new XMLHttpRequest();
+        xmlhttp.open('GET','/?op=list&&media=' + media,true);
+        xmlhttp.send();
+        console.log('INFO: ', 'server responded with ' + xmlhttp.responseText);
+        /*
+        var socket = io.connect('http://localhost:8030/?op=list&&media='+media); // connec to server
+        socket.on('write', function (data) { // listen to news event raised by the server
+          console.log(data);
+        });
+        socket.on('end', function (data) { // listen to news event raised by the server
+          console.log(data);
+        });
+        */
+      }
+    }  
+  </script>
+</body>
+</html>
