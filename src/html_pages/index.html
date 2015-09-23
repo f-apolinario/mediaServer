@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body onload='listMediaTypes()'>
+  <h1>MEDIA SERVER</h1>
+  <form action='action_page.php' action='http://localhost:8030/'>
+    <div>
+      Type of media you want to play:
+      <select name='media' id='media' onchange='listFilesByMedia()'>
+        <option value=''></option>
+      </select>
+    </div>
+    <br>
+    <div id='file_div' style='display: none;'>
+      Select the file you want to play:
+      <select name='name' id='file'>
+      </select>
+    </div>
+    <br>
+    <br>
+    <input type='hidden'' name='op' value='play'>
+    <input type='submit'>
+  </form>
+  <script>
+    
+    function listMediaTypes(){
+      var xmlhttp= new XMLHttpRequest();
+      xmlhttp.open('GET','/?op=list',true);
+      xmlhttp.onreadystatechange=function(){
+         if (xmlhttp.readyState==4 && xmlhttp.status==200){
+            console.log('INFO: ', 'server responded with ' + xmlhttp.responseText.toString());
+            
+            var mediaTypes = xmlhttp.response.split(',');
+            populateFormSelect(document.getElementById('media'),mediaTypes);
+          }
+        }
+      xmlhttp.send();
+    }
+    
+    function listFilesByMedia(value){
+      var e = document.getElementById('media');
+      var media = e.options[e.selectedIndex].value;
+      console.log(media);
+      if(media && media.length > 0){
+        var fileDiv = document.getElementById('file_div');
+        fileDiv.style.display = 'initial';
+        
+        var xmlhttp= new XMLHttpRequest();
+        xmlhttp.open('GET','/?op=list&&media=' + media,true);
+        xmlhttp.onreadystatechange=function(){
+         if (xmlhttp.readyState==4 && xmlhttp.status==200){
+            console.log('INFO: ', 'server responded with ' + xmlhttp.responseText.toString());
+            
+            var files = xmlhttp.response.split(',');
+            populateFormSelect(document.getElementById('file'),files);
+          }
+        }
+        xmlhttp.send();
+
+        
+      }
+    }
+    
+    function populateFormSelect(select,mediatypes){
+      mediatypes.forEach(function (m) {
+        var opt = document.createElement("option");
+        opt.value = m;
+        opt.innerHTML = m;
+      
+        // then append it to the select element
+        select.appendChild(opt);
+      });
+    }
+    
+    function processFile(){
+      var e;
+      e = document.getElementById('media');
+      var media = e.options[e.selectedIndex].value;
+      e = document.getElementById('file');
+      var file = e.options[e.selectedIndex].value;
+      
+      console.log(media,file)
+      
+      var xmlhttp= new XMLHttpRequest();
+      xmlhttp.open('GET','/?op=play&&media=' + media + "&&name=" + file,true);
+      xmlhttp.send();
+    }
+  </script>
+</body>
+
+</html>

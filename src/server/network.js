@@ -1,4 +1,4 @@
-module.exports = function discoverLocalIP(){
+function discoverLocalIP(){
   var os = require('os');
 
   var interfaces = os.networkInterfaces();
@@ -15,3 +15,16 @@ module.exports = function discoverLocalIP(){
   //console.log('INFO: ', 'this are the local IP addresses: ' + addresses);
   return addresses[2];
 };
+
+function intToIP(int) {
+  var part1 = int & 255;
+  var part2 = ((int >> 8) & 255);
+  var part3 = ((int >> 16) & 255);
+  var part4 = ((int >> 24) & 255);
+
+  return part4 + "." + part3 + "." + part2 + "." + part1;
+}
+
+module.exports = { discoverLocalIP : discoverLocalIP,
+                   intToIP : intToIP
+}

@@ -1,4 +1,6 @@
-module.exports = function play(filename,range,clientStream){
+var http = require("http");
+
+function play(filename,range,clientStream){
     var fs = require('fs');
     console.log('INFO: ', 'client requested video');
     
@@ -22,7 +24,7 @@ module.exports = function play(filename,range,clientStream){
         "Content-Length": chunksize,
         "Content-Type": "video/mp4"
       });
-
+      start > end ? start = end : start;
       var stream = fs.createReadStream(filename, { start: start, end: end })
         .on("open", function () {
           stream.pipe(clientStream);
@@ -32,3 +34,45 @@ module.exports = function play(filename,range,clientStream){
         });
     });
 };
+
+
+function doListOperation(mediaPath,media,response,callback){
+  var listFiles = require('./list.js');
+  console.log('INFO: ', 'listing files.');
+  var path = mediaPath;
+  if (media) {
+    path += media + '/';
+  }
+  response.writeHead(200, { "Content-Type": "text/html" });
+  listFiles(path, response,callback);
+  return;
+} 
+
+function doPlayOperation(urlPathName,mediaPath,media,range,name,ip,response){
+  
+  if (urlPathName != '/player') {
+    forceVideoTag(urlPathName,media,name,ip,response);
+    return;
+  }
+  var file_path = mediaPath + media + '/' + name;
+  play(file_path, range, response);
+  return;
+}
+
+function forceVideoTag(pathname,media,name,ip,response){
+  console.log(response)
+  response.writeHead(200, { "Content-Type": "text/html" });
+  response.write('<video width="100%" height="100%" autoplay controls id=' + name + '>' 
+    + '<source '
+            + 'src="http://' + ip + ':8030/player?op=play'
+            + '&&media=' + media
+            + '&&name='+ name + '" '
+            + 'type="video/webm">'
+    + '</video>');
+    response.end();
+  return;
+}
+
+module.exports = {doPlayOperation:doPlayOperation,
+                  doListOperation:doListOperation
+}
