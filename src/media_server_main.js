@@ -1,26 +1,38 @@
-var connectionNumber = 0;
+//Server variables
+var ip;
+var port;
+var mediaPath;
+var htmlPagesPath;
+var logPath;
+
+
+//global required modules
+var http = require('http');
+var operationHandler = require('./server/operationHandler.js');
+var logger = require('./server/logger.js');
+
+function initializeServer(){
+  //Server Config
+  config = require('./config.json');
+  ip = config.ip;
+  port = config.port;
+  mediaPath = config.media_path;
+  htmlPagesPath = config.html_pages_path;
+  logPath = config.log_path;
+}
+
 
 (function main() {
-  //global required modules
-  var http = require('http');
-  //var network = require('./network.js');
-  var operationHandler = require('./server/player.js');
+  initializeServer();
   
-  //Server Config
-  var config = require('./config.json');
-  var ip = config.ip;
-  var port = config.port;
-  var mediaPath = config.media_path;
-  var html_pages_path = config.html_pages_path;
-  
-  writeLog('starting server {"ip":"'+ip+'",'
+  logger.initializeLogger(logPath);
+  logger.writeLog('starting server {"ip":"'+ip+'",'
                             +'"port":'+port+'",'
                             +'"media_path":"'+mediaPath+'"'
-                            +'","html_pages_path":"'+html_pages_path+'"');
+                            +'","html_pages_path":"'+htmlPagesPath+'"}');
   
   //Launch media server service
   var server = http.createServer(function (req, response) {
-    connectionNumber++;
     
     var urlMetadata = preprocessRequest(req);
     //url arguments
@@ -28,25 +40,36 @@ var connectionNumber = 0;
     var media = urlMetadata.media;
     var name = urlMetadata.name;
     var pathname = urlMetadata.pathname;
+    var incommingIP = req.socket.remoteAddress;
     
-    var message = 'Incomming request: op:"' + op + '" ' + 'media:"'+ media + '" '+'name:"' + name + '"';
-    writeLog(message);
+    var message = 'Incomming request ' + logger.requestedOperationToJson(pathname,op,media,name);
+    logger.writeLog(message,incommingIP);
        
+    var errorHandler = function (error) {
+      var message = 'error:' + error + 'in request ' + logger.requestedOperationToJson(pathname,op, media, name);
+      logger.writeLog(message, incommingIP);
+      response.end();
+    }
+    
     //perform one of two types of operations:
     //list
     if (op == 'list') {
-      var sendResultFunction = processServerData(media,ip,port,response);
-      operationHandler.doListOperation(mediaPath,media,response,sendResultFunction); 
+      var sendResultFunction = processServerData(op,media,incommingIP,port,response);
+      operationHandler.doListOperation(mediaPath,media,response,sendResultFunction,errorHandler);
     }
     //play
     else if (op == 'play') {
       var range = req.headers.range;
-      operationHandler.doPlayOperation(pathname,mediaPath,media,range,name,ip,response);
+      var callback = function(){
+        var oper = logger.requestedOperationToJson(op,media,name);
+        logger.writeLog('finished request ' + oper,incommingIP);
+      }
+      operationHandler.doPlayOperation(pathname,mediaPath,media,range,name,ip,response,callback,errorHandler);
     }
     else {
       var fs = require('fs');
       response.writeHead(200, { "Content-Type": "text/html" });
-      fs.readFile(html_pages_path+'index.html',function(err,data){
+      fs.readFile(htmlPagesPath + 'index.html', function (err, data) {
         response.end(data);
       })
     }
@@ -57,7 +80,7 @@ var connectionNumber = 0;
 
 
 
-function processServerData(media,ip,port,clientStream){
+function processServerData(op,media,ip,port,clientStream){
   if(media){
     return function(files){
       var array = [];
@@ -65,6 +88,9 @@ function processServerData(media,ip,port,clientStream){
         array.push(fileName);
       });
       clientStream.end(array.toString());
+      
+      var oper = logger.requestedOperationToJson(op,media,'');
+      logger.writeLog('finished request ' + oper,ip);
     };
   }
   else return function(mediaTypes){
@@ -73,6 +99,9 @@ function processServerData(media,ip,port,clientStream){
         array.push(media);
       });
       clientStream.end(array.toString());
+      
+      var oper = logger.requestedOperationToJson(op,media,'');
+      logger.writeLog('finished request ' + oper,ip);
     };
 }
 
@@ -92,9 +121,3 @@ function preprocessRequest(req){
           ,pathname:pathname};
 }
 
-function writeLog(message){
-  var date = new Date();
-  var timestamp = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDay() + '-' + date.getHours() + ':' + date.getMinutes();
-  
-  console.log('|'+ 'INFO:' + timestamp + ':c:' + connectionNumber +'|', '|' + message + '|');
-}

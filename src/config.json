@@ -2,5 +2,6 @@
     "ip":"localhost",
     "port":"8030",
     "media_path":"../media/",
-    "html_pages_path":"html_pages/"
+    "html_pages_path":"html_pages/",
+	"log_path":"../log/"
 }
