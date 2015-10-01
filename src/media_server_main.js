@@ -81,28 +81,16 @@ function initializeServer(){
 
 
 function processServerData(op,media,ip,port,clientStream){
-  if(media){
-    return function(files){
-      var array = [];
-      files.forEach(function(fileName){
-        array.push(fileName);
-      });
-      clientStream.end(array.toString());
-      
-      var oper = logger.requestedOperationToJson(op,media,'');
-      logger.writeLog('finished request ' + oper,ip);
-    };
-  }
-  else return function(mediaTypes){
-      var array = [];
-      mediaTypes.forEach(function(media){
-        array.push(media);
-      });
-      clientStream.end(array.toString());
-      
-      var oper = logger.requestedOperationToJson(op,media,'');
-      logger.writeLog('finished request ' + oper,ip);
-    };
+  return function(names){
+	  var array = [];
+	  names.forEach(function(name){
+		array.push(name);
+	  });
+	  clientStream.end(array.toString());
+	  
+	  var oper = logger.requestedOperationToJson(op,media,'');
+	  logger.writeLog('finished request ' + oper,ip);
+	};
 }
 
 function preprocessRequest(req){

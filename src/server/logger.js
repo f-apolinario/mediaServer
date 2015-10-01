@@ -47,7 +47,7 @@ function writeToFile(message) {
   }); 
 }
 
-module.exports = { writeLog,
+module.exports = { writeLog : writeLog,
                    intToIP : intToIP,
                    requestedOperationToJson : requestedOperationToJson,
                    initializeLogger : initializeLogger

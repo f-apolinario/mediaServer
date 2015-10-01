@@ -32,7 +32,7 @@ function play(filename,range,clientStream,callback,errorCallback){
         "Content-Range": "bytes " + start + "-" + end + "/" + total,
         "Accept-Ranges": "bytes",
         "Content-Length": chunksize,
-        "Content-Type": "video/mp4"
+        "Content-Type": 'video/' + discoverVideoType(filename)
       });
       start > end ? start = end : start;
       var stream = fs.createReadStream(filename, { start: start, end: end })
@@ -68,14 +68,21 @@ function doPlayOperation(urlPathName,mediaPath,media,range,name,ip,response,call
   return;
 }
 
+function discoverVideoType(name){
+  var ar = name.toString().split('.');
+  var videoType = ar.pop();
+  return videoType; 
+  
+}
 function forceVideoTag(pathname,media,name,ip,response,callback){
+  var videoType = discoverVideoType(name);
   response.writeHead(200, { "Content-Type": "text/html" });
   response.write('<video width="100%" height="100%" autoplay controls id=' + name + '>' 
     + '<source '
             + 'src="http://' + ip + ':8030/player?op=play'
             + '&&media=' + media
             + '&&name='+ name + '" '
-            + 'type="video/webm">'
+            + 'type="video/' + videoType + '">'
     + '</video>');
     response.end();
     callback();
