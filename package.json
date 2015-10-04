@@ -1,7 +1,7 @@
 {
   "name": "media-server",
   "description": "This is distributed system disigned for a central server to stream files to multiple clients.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "author": "Filipe Apolinário",
   "main": "./main.js",

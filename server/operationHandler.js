@@ -23,16 +23,16 @@ function listFiles(path,response,callback){
 }
 
 //Sends as response a video stream
-function doPlayOperation(file_path,range,response,callback,errorCallback){
+function doPlayOperation(path,file,range,response,callback,errorCallback){
 
-  play(file_path, range, response,callback,errorCallback);
+  play(path,file, range, response,callback,errorCallback);
   return;
 }
 
-function play(filename,range,clientStream,callback,errorCallback){
+function play(path,filename,range,clientStream,callback,errorCallback){
     var fs = require('fs');
-    
-    fs.stat(filename, function (err, stats) {
+    var filepath = path + filename;
+    fs.stat(filepath, function (err, stats) {
       if(err){
         errorCallback('cannot find required video');
         return;
@@ -47,13 +47,14 @@ function play(filename,range,clientStream,callback,errorCallback){
       var chunksize = (end - start) + 1;
 
       start > end ? start = end : start;
-      var stream = fs.createReadStream(filename, { start: start, end: end })
+      var stream = fs.createReadStream(filepath, { start: start, end: end })
         .on("open", function () {
           clientStream.writeHead(206, {
-            "Content-Range": "bytes " + start + "-" + end + "/" + total,
-            "Accept-Ranges": "bytes",
-            "Content-Length": chunksize,
-            "Content-Type": 'video/' + discoverMediaType(filename)
+            'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Disposition': 'attachment; filename=\"' + filename + '\"',
+            "Content-Type": discoverMediaType(filename).extension
           });
           stream.pipe(clientStream);
           callback();
@@ -82,10 +83,10 @@ function forceMediaTag(pathname,media,name,ip,response,callback){
   var o = discoverMediaType(name);
   
   var url = 'http://' + ip + ':8030/player?op=play'+ '&&media=' + media + '&&name='+ name;
-  url.replace.replace(' ','+');
+  url.replace(' ','+');
   response.writeHead(200, { "Content-Type": "text/html" });
-  response.write('<a href="' + url + '">Download</a>');
-  response.write('<'+ o.mediaType + ' width="100%" height="100%" autoplay controls id=' + name.replace(' ','+') + '>' 
+  response.write('<a href="' + url + '" id="' + name.replace(' ','+') +'">Download</a>');
+  response.write('<'+ o.mediaType + ' width="100%" height="100%" autoplay controls id="' + name.replace(' ','+') + '">' 
     + '<source '
             + 'src="' + url +'" '
             + 'type="' + o.mediaType + '/' + o.extension + '">'

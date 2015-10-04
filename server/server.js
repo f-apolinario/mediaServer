@@ -75,8 +75,8 @@ function serverHandler(request, response) {
         operationHandler.forceMediaTag(pathname,media,name,ip,response,callback);
         return;
       }
-      var file_path = mediaPath + media + '/' + name;
-      operationHandler.doPlayOperation(file_path,range,response,callback,errorHandler);
+      var file_path = mediaPath + media + '/';
+      operationHandler.doPlayOperation(file_path,name,range,response,callback,errorHandler);
     }
   //present initial page
   else {
@@ -96,7 +96,7 @@ function getSendResponseFunction(op, media, ip, port, clientStream) {
       files.forEach(function (fileName) {
         array.push(fileName);
       });
-      console.log(array);
+      
       clientStream.end(array.toString());
 
       var oper = logger.requestedOperationToJson(op, media, '');
@@ -109,7 +109,7 @@ function getSendResponseFunction(op, media, ip, port, clientStream) {
     mediaTypes.forEach(function (media) {
       array.push(media);
     });
-    console.log(array);
+    
     clientStream.end(array.toString());
 
     var oper = logger.requestedOperationToJson(op, media, '');
