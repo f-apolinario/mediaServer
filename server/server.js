@@ -56,7 +56,7 @@ function serverHandler(request, response) {
   //process and emit response to request
   //request can be one of three types of operations:
   //list
-  if (op == 'list') {
+  /*if (op == 'list') {
       var sendResponseFunction = getSendResponseFunction(op,media,incommingIP,port,response);
       var path = mediaPath;
       if(media){
@@ -77,12 +77,29 @@ function serverHandler(request, response) {
       }
       var file_path = mediaPath + media + '/';
       operationHandler.doPlayOperation(file_path,name,range,response,callback,errorHandler);
-    }
+    }*/
+	if (op == 'scan') {
+		console.log(name);
+		var exec = require('child_process').exec, child;
+
+		child = exec('dir', function (error, stdout, stderr) {
+			console.log('stdout: ' + stdout);
+			console.log('stderr: ' + stderr);
+			if (error !== null) {
+			  console.log('exec error: ' + error);
+			  //response.writeHead(200, { "Content-Type": "text/plain" });
+			  response.end('exec error: ' + error);
+			  return;
+			}
+			//response.writeHead(200, { "Content-Type": "text/plain"});
+			response.end('successfully scanned file ' + stdout +stderr);
+		});
+	}
   //present initial page
   else {
     var fs = require('fs');
       response.writeHead(200, { "Content-Type": "text/html" });
-      fs.readFile(htmlPagesPath + 'index.html', function (err, data) {
+      fs.readFile(htmlPagesPath + '1.html', function (err, data) {
         response.end(data);
       })
   }

@@ -1,13 +1,12 @@
 {
-  "name": "media-server",
-  "description": "This is distributed system disigned for a central server to stream files to multiple clients.",
+  "name": "saned-server",
+  "description": "remote Interface for controling saned scanner.",
   "version": "2.0.1",
   "private": true,
   "author": "Filipe Apolinário",
   "main": "./main.js",
   "maintainers": [
-    "Filipe Apolinário <filipe.apolinario@tecnico.ulisboa.pt>",
-    "André Tilau <a.m.stielau@gmail.com>"
+    "Filipe Apolinário <filipe.apolinario@tecnico.ulisboa.pt>"
   ],
   "dependencies": {
     "concat-stream": "1.5.0",
@@ -24,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/f-apolinario/mediaServer.git"
+    "url": "git+https://github.com/f-apolinario/remote-saned-scanner.git"
   },
   "keywords": [
     "media",
@@ -40,7 +39,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/f-apolinario/mediaServer/issues"
+    "url": "https://github.com/f-apolinario/remote-saned-scanner/issues"
   },
-  "homepage": "https://github.com/f-apolinario/mediaServer#readme"
+  "homepage": "https://github.com/f-apolinario/remote-saned-scanner#readme"
 }

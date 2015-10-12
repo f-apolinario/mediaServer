@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body>
+  <h1>SANED SERVER</h1>
+  
+    <div id='file_div'>
+      Select the file you want to play:
+      <input type='text' name='name' id='file'>
+    </div>
+    <br>
+    <input type='hidden' name='op' value='scan'>
+    <input type='submit' onclick ='scanFile()'>
+	<div id=div_body>
+	</div>
+  <script>
+  
+	function scanFile(){
+		var e = document.getElementById('file');
+		var name = e.value;
+		console.log(name);
+		var xmlhttp= new XMLHttpRequest();
+		xmlhttp.open('GET','/?op=scan&&name='+name,true);
+      xmlhttp.onreadystatechange=function(){
+         if (xmlhttp.readyState==4 && xmlhttp.status==200){
+            console.log('INFO: ', 'server responded with ' + xmlhttp.responseText.toString());
+            var b =document.getElementById('div_body');
+			var opt = document.createElement("p");
+			opt.appendChild(document.createTextNode(xmlhttp.responseText.toString()));
+			b.appendChild(opt);
+            //var mediaTypes = xmlhttp.response.split(',');
+            //populateFormSelect(document.getElementById('obj'),mediaTypes);
+          }
+        }
+      xmlhttp.send();
+	}
+    
+    function listMediaTypes(){
+      var xmlhttp= new XMLHttpRequest();
+      xmlhttp.open('GET','/?op=list',true);
+      xmlhttp.onreadystatechange=function(){
+         if (xmlhttp.readyState==4 && xmlhttp.status==200){
+            console.log('INFO: ', 'server responded with ' + xmlhttp.responseText.toString());
+            
+            var mediaTypes = xmlhttp.response.split(',');
+            populateFormSelect(document.getElementById('obj'),mediaTypes);
+          }
+        }
+      xmlhttp.send();
+    }
+    
+    function listFilesByMedia(value){
+      var e = document.getElementById('media');
+      var media = e.options[e.selectedIndex].value;
+      console.log(media);
+      if(media && media.length > 0){
+        var fileDiv = document.getElementById('file_div');
+        fileDiv.style.display = 'initial';
+        
+        var xmlhttp= new XMLHttpRequest();
+        xmlhttp.open('GET','/?op=list&&media=' + media,true);
+        xmlhttp.onreadystatechange=function(){
+         if (xmlhttp.readyState==4 && xmlhttp.status==200){
+            console.log('INFO: ', 'server responded with ' + xmlhttp.responseText.toString());
+            var files = xmlhttp.response.split(',');
+            var select = document.getElementById('obj');
+            select.innerHTML = '';
+            populateFormSelect(select,files);
+          }
+        }
+        xmlhttp.send();
+
+        
+      }
+    }
+    
+    function populateFormSelect(select,mediatypes){
+      mediatypes.forEach(function (m) {
+        var opt = document.createElement("a");
+        opt.href = '/?name=' + m.replace(' ','+') +'&op=list';
+        opt.text = m;
+        opt.value = m;
+        opt.innerHTML = m;
+        // then append it to the select element
+        console.log(opt)
+        select.appendChild(opt);
+        var br = document.createElement("br");
+        select.appendChild(br);
+      });
+    }
+    
+    function processFile(){
+      var e;
+      e = document.getElementById('media');
+      var media = e.options[e.selectedIndex].value;
+      e = document.getElementById('file');
+      var file = e.options[e.selectedIndex].value;
+      
+      console.log(media,file)
+      
+      var xmlhttp= new XMLHttpRequest();
+      xmlhttp.open('GET','/?op=play&&media=' + media + "&&name=" + file,true);
+      xmlhttp.send();
+    }
+  </script>
+</body>
+
+</html>
